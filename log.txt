@@ -2,10 +2,31 @@ https://www.computerenhance.com/p/table-of-contents
 
 Mon Feb  2 14:46:17 EET 2026
 ~ Welcome to the Performance-Aware Programming Series!
+    - Code can be made performant in two ways:
+        - Reducing total # of instructions
+        - Increasing instructions per clock cycle
 ~ Waste
     - Python produces ~160-180 CPU instructions per addition
+    - The argument is that those 180 instructions are wasted,
+    at runtime
+    - Not doing this = reducing total # of instructions
 
-Instructions Per Clock (25:05)
+~ Instructions Per Clock
+    - Naive C loop is already at 0.8 adds per clock cycle,
+    which implies >1 IPC, since incrementing the counter,
+    checking it, loading the value, and doing the add is
+    at least 4 instructions
+    - Unrolling the loop one level goes up to ~1 add/clock
+    - Naive unrolling is order-complected thus not parallel
+    (But Python sums could be, since idiomatic Python is
+     `sum(xs)`. But they're not, I checked. Python L)
+    - You can "unroll parallel" like so:
+        A += xs[i]; B += xs[i+1]; i += 2
+      This gets you more adds per clock because all 3 adds
+      are independent.
+    
+
+
 Single Instruction, Multiple Data (35:31)
 Caching (22:55)
 Multithreading (32:11)
