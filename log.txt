@@ -3,11 +3,13 @@ https://www.computerenhance.com/p/table-of-contents
 Mon Feb  2 14:46:17 EET 2026
 ~ Welcome to the Performance-Aware Programming Series!
     - Code can be made performant in two ways:
-        - Reducing total # of instructions
-        - Increasing instructions per clock cycle
+    - Reducing total # of instructions
+    - Increasing instructions per clock cycle
+    i.e. moving instructions faster through the CPU
+
 ~ Waste
-    - Python produces ~160-180 CPU instructions per addition
-    - The argument is that those 180 instructions are wasted,
+- Python produces ~160-180 CPU instructions per addition
+- The argument is that those 180 instructions are wasted,
     at runtime
     - Not doing this = reducing total # of instructions
 
@@ -21,13 +23,46 @@ Mon Feb  2 14:46:17 EET 2026
     (But Python sums could be, since idiomatic Python is
      `sum(xs)`. But they're not, I checked. Python L)
     - You can "unroll parallel" like so:
-        A += xs[i]; B += xs[i+1]; i += 2
-      This gets you more adds per clock because all 3 adds
-      are independent.
-    
+    A += xs[i]; B += xs[i+1]; i += 2
+    This gets you more adds per clock because all 3 adds
+    are independent.
 
+Wed Feb  4 19:35:20 EET 2026
+~ Single Instruction, Multiple Data 
+    - Another way to get more instructions per cycle: SIMD
+    - Getting more instructions per cycle is dwarfed by
+    waste oftentimes, but objectively can be a 2x gain
+    - SIMD on x64 is called SSE: Streaming SIMD extensions
+    - x64 SIMD add is called `paddd` for packed add DWORD
+    - 1 paddd = 4 adds
+    - DWORD = 32 bit, so if the CPU can take a 128 bit value,
+    it can do 4 of them in a paddd
+    - The packed DWORDS inside a 128bit value are called
+    "lanes". Lane 0 through lane 3.
+    - It's a big CPU level bit field basically
+    - It's kind of like being able to add two 4 dimensional
+    vectors in constant time / in one CPU instruction
+    - The value proposition of SIMD is not that it adds
+    faster, you still have to add, but if there's only one
+    instruction then the CPU doesn't have to perform all the
+    steps in the pipeline (decoding the instruction,
+            loading the inputs, determening possible
+            order-complection)
+    - "We save a ton of decoding and bookkeeping time"
+    - There are 3 SIMD instruction sets:
+    SSE, AVX, and AVX-512. Most CPUs support SSE and AVX.
+    SSE is 128 bits, AVX 256 (thus 8),
+    and AVX-512 is 512 (thus 16).
+    At least assuming 32 bit lane size.
+    - Naive loop: .8 adds per cycle
+    - SSE (i.e. 128 bits into 4 lanes): 3.1 adds per cycle
+    - AVX (256 but really like 2x128): 7.0 adds per cycle
+    - "It actually is pretty common to get a speed increase
+       roughly proportional to the width increase"
+    - You can unroll the loop AND use SIMD to get up to 13.4
+    adds per cycle, so the CPU can even do more than one
+   SIMD add per cycle.
 
-Single Instruction, Multiple Data (35:31)
 Caching (22:55)
 Multithreading (32:11)
 Python Revisited (36:22)
