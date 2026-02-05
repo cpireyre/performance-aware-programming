@@ -8,9 +8,9 @@ Mon Feb  2 14:46:17 EET 2026
     i.e. moving instructions faster through the CPU
 
 ~ Waste
-- Python produces ~160-180 CPU instructions per addition
-- The argument is that those 180 instructions are wasted,
-    at runtime
+    - Python produces ~160-180 CPU instructions per addition
+    - The argument is those 180 instructions are wasted,
+      at runtime
     - Not doing this = reducing total # of instructions
 
 ~ Instructions Per Clock
@@ -35,7 +35,7 @@ Wed Feb  4 19:35:20 EET 2026
     - SIMD on x64 is called SSE: Streaming SIMD extensions
     - x64 SIMD add is called `paddd` for packed add DWORD
     - 1 paddd = 4 adds
-    - DWORD = 32 bit, so if the CPU can take a 128 bit value,
+    - DWORD = 32 bit, so if CPU can take a 128 bit value,
     it can do 4 of them in a paddd
     - The packed DWORDS inside a 128bit value are called
     "lanes". Lane 0 through lane 3.
@@ -46,14 +46,16 @@ Wed Feb  4 19:35:20 EET 2026
     faster, you still have to add, but if there's only one
     instruction then the CPU doesn't have to perform all the
     steps in the pipeline (decoding the instruction,
-            loading the inputs, determening possible
-            order-complection)
+    loading the inputs, determening possible
+    order-complection)
     - "We save a ton of decoding and bookkeeping time"
     - There are 3 SIMD instruction sets:
     SSE, AVX, and AVX-512. Most CPUs support SSE and AVX.
     SSE is 128 bits, AVX 256 (thus 8),
     and AVX-512 is 512 (thus 16).
     At least assuming 32 bit lane size.
+    - Supposedly it's possible to get even more adds
+    using smaller lane sizes, down to 8 bits of course
     - Naive loop: .8 adds per cycle
     - SSE (i.e. 128 bits into 4 lanes): 3.1 adds per cycle
     - AVX (256 but really like 2x128): 7.0 adds per cycle
@@ -63,7 +65,36 @@ Wed Feb  4 19:35:20 EET 2026
     adds per cycle, so the CPU can even do more than one
    SIMD add per cycle.
 
-Caching (22:55)
+Thu Feb  5 11:28:08 EET 2026
+~ Caching 
+    - load:store::read:write
+    - adds can be order-complected, but having to load
+    before adding is order-complection also
+    - How does the CPU access values? Close to the compute
+    part, there is a `register file`, which (my words) is
+    like RAM for the CPU. OOMs faster of course.
+    - "The register file is small, temporary storage
+    designed to feed values to instructions
+    extremely quickly."
+    - First layer: L1 cache. Access time: 3-4 cycles(!!!)
+    32 kilobytes on Casey's example chip.
+    - L2 cache: ~14 cycles to access. Bigger than L1 but
+    fewer bytes per cycle. 256kb on example chip.
+    - L3: 80 instructions. 8mb on example chip.
+    - After that it's main memory which is gigabytes.
+    - "when you load data, the speed of the load is
+    proportional to how many levels the CPU had to go
+    to get it."
+    - Depends on chip, but L1 is usually per-core, so each
+    core gets 32k or whatever. L2 varies. L3 usually only
+    one for the whole CPU.
+    - Instructions can get loaded into a different L1 cache
+    - The SIMD loop example from earlier goes from 13 to 8
+    to 4 adds per cycle if you start summing amounts of 
+    integers that don't fit into L1 or L2. Down to 1.4 adds
+    per cycle if you have to go to main memory!
+
+
 Multithreading (32:11)
 Python Revisited (36:22)
 Interlude (1 hour, no homework)
