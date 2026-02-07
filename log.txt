@@ -95,7 +95,57 @@ Thu Feb  5 11:28:08 EET 2026
     per cycle if you have to go to main memory!
 
 
-Multithreading (32:11)
+Sat Feb  7 12:24:38 EET 2026
+~ Multithreading 
+    - The "Five factors" of performance:
+        - waste (# instr)
+        - instructions throughput (ILP)
+        - SIMD
+        - caching
+        - multithreading
+    - I feel like instructions per clock and SIMD are
+    the same but idk
+        - ILP != SIMD?
+        - ILP decomplects at the instruction level
+            - i.e. running more concurrent instructions
+        - SIMD decomplects at the data level???
+            - i.e. running one big instruction
+        - ILP is more CPU level, SIMD more assembly level
+        You can explicitly program for SIMD but not so ILP
+    - "Today, since chip fabrication technology has
+    gotten more and more advanced, CPU designers are able
+    to pack dramatically more things on a chip than they
+    used to. A single modern CPU package may contain
+    multiple connected chips, and those chips might
+    each contain multiple cores, each the equivalent
+    of an entire CPU from early generations."
+    - Because cores have their own caches, going multithread
+    can be better than multiplying performance per number
+    of cores, since it's kind of also multiplying your L1
+    - Memory bandwidth can be a bottleneck; access to it
+    may or may not get more efficient when multithreading.
+    Depends on the chip.
+    - "A single core can get the lion’s share of
+    the bandwidth on its own. No matter how many cores we
+    use, we can’t even double the bandwidth."
+    - Interesting: if CPUs get better, the same code gets
+    caching benefits "for free", but may not improve with
+    more CPU cores, if it was single threaded originally.
+    - Servers can have 100+ cores, so the multithreading
+    multiplier is the only one that gets as big as Waste
+     - i.e. single-core code on a large CPU is relatively
+     as slow as going from C to Python
+    - SIMD and IPC just cannot get these orders of magnitude
+    - Also writing multithreaded code is very difficult
+    (understatement)
+
+    Note from the comments: indirectly trying to get the
+    compiler to generate better code is fraught because
+    "LLVM breaks codegen constantly, so something that
+    generated good code in 14 may generate complete
+    nonsense in 15,". Sounds like LLM "prompt engineering"
+
+
 Python Revisited (36:22)
 Interlude (1 hour, no homework)
 
@@ -112,8 +162,7 @@ Opcode Patterns in 8086 Arithmetic (20:01)
 Using the Reference Decoder as a Shared Library (8:48)
 Simulating Non-memory MOVs (18:00)
 Simulating ADD, SUB, and CMP (25:56)
-Simulating Conditional Jumps (19:41)
-Simulating Memory (26:32)
+Simulating Conditional Jumps (19:41) Simulating Memory (26:32)
 Simulating Real Programs (16:02)
 Other Common Instructions (19:43)
 The Stack (26:58)
