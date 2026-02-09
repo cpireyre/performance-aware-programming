@@ -22,6 +22,7 @@ Mon Feb  2 14:46:17 EET 2026
     - Naive unrolling is order-complected thus not parallel
     (But Python sums could be, since idiomatic Python is
      `sum(xs)`. But they're not, I checked. Python L)
+    (See below though for sum() performance)
     - You can "unroll parallel" like so:
     A += xs[i]; B += xs[i+1]; i += 2
     This gets you more adds per clock because all 3 adds
@@ -46,7 +47,7 @@ Wed Feb  4 19:35:20 EET 2026
     faster, you still have to add, but if there's only one
     instruction then the CPU doesn't have to perform all the
     steps in the pipeline (decoding the instruction,
-    loading the inputs, determening possible
+    loading the inputs, resolving possible
     order-complection)
     - "We save a ton of decoding and bookkeeping time"
     - There are 3 SIMD instruction sets:
@@ -78,6 +79,8 @@ Thu Feb  5 11:28:08 EET 2026
     extremely quickly."
     - First layer: L1 cache. Access time: 3-4 cycles(!!!)
     32 kilobytes on Casey's example chip.
+        - (This sounds like a lot but every program running
+    on the computer at any one time is vying for access)
     - L2 cache: ~14 cycles to access. Bigger than L1 but
     fewer bytes per cycle. 256kb on example chip.
     - L3: 80 instructions. 8mb on example chip.
@@ -112,6 +115,7 @@ Sat Feb  7 12:24:38 EET 2026
             - i.e. running one big instruction
         - ILP is more CPU level, SIMD more assembly level
         You can explicitly program for SIMD but not so ILP
+        - (SIMD also reduces total instructions viz. loads)
     - "Today, since chip fabrication technology has
     gotten more and more advanced, CPU designers are able
     to pack dramatically more things on a chip than they
@@ -146,7 +150,44 @@ Sat Feb  7 12:24:38 EET 2026
     nonsense in 15,". Sounds like LLM "prompt engineering"
 
 
-Python Revisited (36:22)
+Mon Feb  9 11:04:58 EET 2026
+~ Python Revisited 
+    - When you add up reducing waste and SIMD and caching
+    and multithreading and loop unrolling and so on you
+    really do get ~8,000x speedup
+    - If you do the 80/20 of this you can probably still get
+    like 100x to 1000x without going crazy (claim)
+    - Summary of ways to make code fast:
+        - Reduce waste
+        - Increase instructions per clock
+        - SIMD
+        - Caching
+        - Multithreading
+    - The idea of the performance-aware 80/20 is to get
+    a sense of what's really slow and where to focus to
+    get the 100x even if using Python or whatever
+    - I tried my own tests with `time` from fish but
+    running an empty Python file takes much more time
+    than adding 4096 integers so it's hard to see
+    performance differences in the summation methods.
+    - Very surprising: Numpy sums 10x slower than sum()?!
+    - Not surprising but important: sum() over 10x faster
+    than `for x in xs: sum += x`
+    - Reminder that Python has typed numeric arrays:
+    https://docs.python.org/3/library/array.html
+    - Using typed arrays, Numpy now outperforms, in fact
+    it gets roughly within 1-2 OOMs of C(!!!). Bad cache
+    performance but for inputs that don't go in L1 or L2
+    it's pretty close.
+    - You can also use Cython which appears to be a fairly
+    drop-in C FFI and call C code for hot loops.
+    - Casey's performance secret: google the C FFI module
+    for your runtime, basically
+    - From the comments: Numpy favors its own ndarray type,
+    although Casey says he tried it and was not faster than
+    Python typed arrays.
+
+
 Interlude (1 hour, no homework)
 
 The Haversine Distance Problem (30:28)
