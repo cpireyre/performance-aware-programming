@@ -188,9 +188,23 @@ Mon Feb  9 11:04:58 EET 2026
     Python typed arrays.
 
 
-Interlude (1 hour, no homework)
 
-The Haversine Distance Problem (30:28)
+Tue Feb 10 09:58:03 EET 2026
+~ Interlude: The Haversine Distance Problem 
+    - Claim: it's good to start with learning to optimise
+    math operations. Corollary: this course might turn out
+    useful for quant stuff.
+    - The haversine distance is a distance between points
+    on a sphere. It involves a formula which we will use.
+    To make the problem more real-world, we will also do
+    JSON parsing. This problem is the lens through which
+    we will look at performance in this course as sort of
+    a real-world-enough type situation.
+    - Also we will compute the average for verification
+    - Naive Python implementation on Casey's machine takes
+    26 seconds for 10M points, and it's a pretty even split
+    between JSON parsing and doing the math.
+
 “Clean” Code, Horrible Performance (22:40)
 Part 1: Reading ASM (7 hours, plus homework)
 
