@@ -234,12 +234,15 @@ Wed Feb 11 09:42:03 EET 2026
     to eliminate branching by streamlining the math, which is
     architecturally impossible in a class hierarchy.
 
+Thu Feb 12 11:54:28 EET 2026
+Part 1: ~ Reading ASM Instruction Decoding on the 8086 
+    - We will be building a simplified virtual 8086
+    - `mov ax, bx` actually copies and does not "move"
+    - destination first, then source, at least for Intel,
+    like doing `a = b` in a programming language
+    - See page 159 in 8086.pdf for info on mov
+    - `xxd -b` can display ones and zeros
 
-Part 1: Reading ASM (7 hours, plus homework)
-
-This part of the course is designed to ensure that everyone taking the course has a solid understanding of how a CPU works at the assembly-language level.
-
-Instruction Decoding on the 8086 (28:28)
 Decoding Multiple Instructions and Suffixes (43:51)
 Opcode Patterns in 8086 Arithmetic (20:01)
 8086 Decoder Code Review (1:17:49)
