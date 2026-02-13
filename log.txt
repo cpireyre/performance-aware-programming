@@ -243,6 +243,9 @@ Part 1: ~ Reading ASM Instruction Decoding on the 8086
     - See page 159 in 8086.pdf for info on mov
     - `xxd -b` can display ones and zeros
 
+Fri Feb 13 11:04:21 EET 2026
+    - Successfully disassembled listings 37 and 38
+
 Decoding Multiple Instructions and Suffixes (43:51)
 Opcode Patterns in 8086 Arithmetic (20:01)
 8086 Decoder Code Review (1:17:49)
