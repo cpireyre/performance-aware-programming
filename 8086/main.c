@@ -14,6 +14,9 @@ typedef unsigned short  u16;
 #define REG_MASK  0b00111000
 #define REM_MASK  0b00000111
 
+/* TODO: Print file name and `bits 16` at the top */
+/* to check idempotency with nasm */
+
 void    printb(u8 byte)
 {
     char    *xs = "01";
