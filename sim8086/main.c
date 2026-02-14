@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 typedef int i32;
 typedef unsigned char   u8;
@@ -13,9 +14,6 @@ typedef unsigned short  u16;
 #define MOD_MASK  0b11000000
 #define REG_MASK  0b00111000
 #define REM_MASK  0b00000111
-
-/* TODO: Print file name and `bits 16` at the top */
-/* to check idempotency with nasm */
 
 void    printb(u8 byte)
 {
@@ -96,7 +94,9 @@ int main(int argc, char **argv)
         printf("Error: read\n");
         return (-1);
     }
-    write(1, "bits 16\n\n", 9);
+    write(1, "; ", 2);
+    write(1, argv[1], strlen(argv[1]));
+    write(1, "\n\nbits 16\n\n", 11);
     run(buf, read_bytes);
     close(fd);
     return (0);
