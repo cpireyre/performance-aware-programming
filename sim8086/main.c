@@ -1,3 +1,7 @@
+#TODO: Use bit field for decoding as in https://pastebin.com/hQ6PKSB3
+#Although some endianness and future-proofing concerns,
+#if some later opcodes break the rules.
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
