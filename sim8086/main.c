@@ -96,6 +96,7 @@ int main(int argc, char **argv)
         printf("Error: read\n");
         return (-1);
     }
+    write(1, "bits 16\n\n", 9);
     run(buf, read_bytes);
     close(fd);
     return (0);
