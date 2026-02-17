@@ -16,7 +16,7 @@ typedef unsigned short  u16;
 #define MAX_FILE_SIZE_BYTES 4096
 #define MOV_CODE        0b10001000
 #define MOV_IMM_CODE    0b10110000
-#define OP_MASK         0b11111110
+#define OP_MASK         0b11111000
 #define MOD_MASK        0b11000000
 #define REG_MASK        0b00111000
 #define REM_MASK        0b00000111
@@ -81,7 +81,7 @@ void    run(u8 *program, i32 size)
                 }
            case MOV_IMM_CODE:
                 {
-                    reg = opcode & REM_MASK;
+                    reg = opcode & 0b111;
                     w = opcode & (1 << 3);
                     printf("mov ");
                     printf("%s", reg_names[(reg << 1) + w]);

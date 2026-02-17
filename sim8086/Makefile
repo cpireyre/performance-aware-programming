@@ -10,5 +10,6 @@ clean:
 t: all
 	./diff.sh test/listing_0037_single_register_mov
 	./diff.sh test/listing_0038_many_register_mov
+	./diff.sh test/imm2reg
 	# ./diff.sh test/listing_0039_more_movs
 	@echo "All clear!"
