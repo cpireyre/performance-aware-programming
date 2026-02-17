@@ -1,6 +1,7 @@
-#TODO: Use bit field for decoding as in https://pastebin.com/hQ6PKSB3
-#Although some endianness and future-proofing concerns,
-#if some later opcodes break the rules.
+/* TODO: Use bit field for decoding as in https://pastebin.com/hQ6PKSB3
+ * Although some endianness and future-proofing concerns,
+ * if some later opcodes break the rules.
+*/
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -13,11 +14,12 @@ typedef unsigned char   u8;
 typedef unsigned short  u16;
 
 #define MAX_FILE_SIZE_BYTES 4096
-#define MOV_CODE  0b10001000
-#define OP_MASK   0b11111100
-#define MOD_MASK  0b11000000
-#define REG_MASK  0b00111000
-#define REM_MASK  0b00000111
+#define MOV_CODE        0b10001000
+#define MOV_IMM_CODE    0b10110000
+#define OP_MASK         0b11111110
+#define MOD_MASK        0b11000000
+#define REG_MASK        0b00111000
+#define REM_MASK        0b00000111
 
 void    printb(u8 byte)
 {
@@ -30,12 +32,13 @@ void    printb(u8 byte)
         write(1, xs + ((byte >> i) & 1), 1);
         i -= 1;
     }
+    write(1, "\n", 1);
 }
 
 void    run(u8 *program, i32 size)
 {
     i32  pc;
-    u8   d, w, mod, reg, rem;
+    u8   d, w, mod, reg, rem, opcode;
     char *reg_names[] = {
         "al", "ax",
         "cl", "cx",
@@ -55,13 +58,14 @@ void    run(u8 *program, i32 size)
     pc = 0;
     while (pc < size)
     {
+        opcode = program[pc];
         /* Maybe should use u16 and divide size by 2 */
-        switch (program[pc] & OP_MASK)
+        switch (opcode & OP_MASK)
         {
             case MOV_CODE:
                 {
-                    d = program[pc] & (1 << 1);
-                    w = program[pc] & (1 << 0);
+                    d = opcode & (1 << 1);
+                    w = opcode & (1 << 0);
                     mod = program[pc + 1] & MOD_MASK;
                     assert(mod == MOD_MASK);
                     reg = program[pc + 1] & REG_MASK;
@@ -73,6 +77,24 @@ void    run(u8 *program, i32 size)
                     printf("\n");
                     (void)d; (void)mod;
                     /* printf("%d%d %d.%d.%d\n", d, w, mod, reg, rem); */
+                    break;
+                }
+           case MOV_IMM_CODE:
+                {
+                    reg = opcode & REM_MASK;
+                    w = opcode & (1 << 3);
+                    printf("mov ");
+                    printf("%s", reg_names[(reg << 1) + w]);
+                    printf(", ");
+                    if (w) printf("16bit immediate\n");
+                    else printf("%d", program[pc + 1]);
+                    printf("\n");
+                    break;
+                }
+          default:
+                {
+                    printf("Unrecognised opcode");
+                    printb(opcode);
                     break;
                 }
         }

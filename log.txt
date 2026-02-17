@@ -1,4 +1,5 @@
 https://www.computerenhance.com/p/table-of-contents
+8086 listings: https://github.com/cmuratori/computer_enhance/tree/main/perfaware/part1
 
 Thu Feb 12 11:54:28 EET 2026
 Part 1: ~ Reading ASM Instruction Decoding on the 8086 
@@ -12,7 +13,14 @@ Part 1: ~ Reading ASM Instruction Decoding on the 8086
 Fri Feb 13 11:04:21 EET 2026
     - Successfully disassembled listings 37 and 38
 
-Decoding Multiple Instructions and Suffixes (43:51)
+Tue Feb 17 11:13:01 EET 2026
+~ Decoding Multiple Instructions and Suffixes 
+    - "The other values of MOD are there to encode
+    memory-to-register moves (loads),
+    and register-to-memory moves (stores)"
+    - Depending on the MOD the CPU may have to read 0, 1,
+    or 2 extra bytes..... what were they thinking‽
+
 Opcode Patterns in 8086 Arithmetic (20:01)
 8086 Decoder Code Review (1:17:49)
 Using the Reference Decoder as a Shared Library (8:48)
