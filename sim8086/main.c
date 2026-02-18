@@ -8,10 +8,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
-
-typedef int i32;
-typedef unsigned char   u8;
-typedef unsigned short  u16;
+#include "mov.c"
 
 #define MAX_FILE_SIZE_BYTES 4096
 #define MOV_CODE        0b10001000
@@ -49,6 +46,7 @@ void    run(u8 *program, i32 size)
         "dh", "si",
         "bh", "di"
     };
+    Op  op;
 
     /* d = 0: src in reg field. 1: dest in reg */
     /* d is always 0 in the first 2 listings */
@@ -59,10 +57,10 @@ void    run(u8 *program, i32 size)
     while (pc < size)
     {
         opcode = program[pc];
-        /* Maybe should use u16 and divide size by 2 */
-        switch (opcode & OP_MASK)
+        op = decode(program[pc]);
+        switch (op)
         {
-            case MOV_CODE:
+            case reg2reg:
                 {
                     d = opcode & (1 << 1);
                     w = opcode & (1 << 0);
@@ -79,7 +77,7 @@ void    run(u8 *program, i32 size)
                     /* printf("%d%d %d.%d.%d\n", d, w, mod, reg, rem); */
                     break;
                 }
-           case MOV_IMM_CODE:
+           case imm2reg:
                 {
                     reg = opcode & 0b111;
                     w = opcode & (1 << 3);
