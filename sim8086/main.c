@@ -65,15 +65,31 @@ void    run(u8 *program, i32 size)
                     d = opcode & (1 << 1);
                     w = opcode & (1 << 0);
                     mod = program[pc + 1] & MOD_MASK;
-                    assert(mod == MOD_MASK);
                     reg = program[pc + 1] & REG_MASK;
                     rem = program[pc + 1] & REM_MASK;
                     printf("mov ");
                     printf("%s", reg_names[(rem << 1) + w]);
                     printf(", ");
-                    printf("%s", reg_names[(reg >> 2) + w]);
-                    printf("\n");
-                    (void)d; (void)mod;
+                    if (mod == 0b11000000)
+                    {
+                        printf("%s", reg_names[(reg >> 2) + w]);
+                    }
+                    else if (mod == 0)
+                    {
+                        /* Direct memory, no displacement */
+                        switch (rem)
+                        {
+                            case 0b000: printf("[bx + si]"); break;
+                            case 0b001: printf("[bx + di]"); break;
+                            case 0b010: printf("[bp + si]"); break;
+                            case 0b011: printf("[bp + di]"); break;
+                            case 0b100: printf("[si]");      break;
+                            case 0b101: printf("[di]");      break;
+                            case 0b110: printf("[bp + si]"); break;
+                            case 0b111: printf("[bx]");      break;
+                        }
+                    }
+                    (void)d;
                     /* printf("%d%d %d.%d.%d\n", d, w, mod, reg, rem); */
                     break;
                 }
@@ -90,7 +106,6 @@ void    run(u8 *program, i32 size)
                         pc += 1;
                     }
                     else printf("%d", program[pc + 1]);
-                    printf("\n");
                     break;
                 }
           default:
@@ -100,6 +115,7 @@ void    run(u8 *program, i32 size)
                     break;
                 }
         }
+        printf("\n");
         pc += 2;
     }
 }

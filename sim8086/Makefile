@@ -12,5 +12,6 @@ t: all
 	./diff.sh test/listing_0038_many_register_mov
 	./diff.sh test/imm2reg
 	./diff.sh test/mov16imm
+	# ./diff.sh test/addr-calc
 	# ./diff.sh test/listing_0039_more_movs
 	@echo "All clear!"
