@@ -80,11 +80,14 @@ void    run(u8 *program, i32 size)
            case imm2reg:
                 {
                     reg = opcode & 0b111;
-                    w = opcode & (1 << 3);
+                    w = !(!(opcode & (1 << 3)));
                     printf("mov ");
                     printf("%s", reg_names[(reg << 1) + w]);
                     printf(", ");
-                    if (w) printf("16bit immediate\n");
+                    if (w)
+                    {
+                        printf("16bit immediate\n");
+                    }
                     else printf("%d", program[pc + 1]);
                     printf("\n");
                     break;
