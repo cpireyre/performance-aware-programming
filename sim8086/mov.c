@@ -16,7 +16,8 @@ u8 match(u8 op, u8 mask) { return (op & mask) == mask; }
 
 Op decode(u8 opcode)
 {
-    if (match(opcode, REG2REG)) return reg2reg;
+    /* This is order-complected somehow oh geez */
     if (match(opcode, IMM2REG)) return imm2reg;
+    if (match(opcode, REG2REG)) return reg2reg;
     return unknown;
 }

@@ -86,7 +86,8 @@ void    run(u8 *program, i32 size)
                     printf(", ");
                     if (w)
                     {
-                        printf("16bit immediate\n");
+                        printf("%d", *(u16*)(program + pc + 1));
+                        pc += 1;
                     }
                     else printf("%d", program[pc + 1]);
                     printf("\n");
