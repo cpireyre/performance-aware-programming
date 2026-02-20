@@ -15,5 +15,6 @@ t: all
 	./diff.sh test/addr-calc
 	./diff.sh test/disp8
 	./diff.sh test/disp16
-	# ./diff.sh test/listing_0039_more_movs
+	./diff.sh test/dest-calc
+	./diff.sh test/listing_0039_more_movs
 	@echo "All clear!"

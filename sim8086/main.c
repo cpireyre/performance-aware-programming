@@ -76,8 +76,11 @@ void    run(u8 *program, i32 size)
                     }
                     else if (mod == 0)
                     {
-                        printf("%s", reg_names[(rem << 1) + w]);
-                        printf(", ");
+                        if (d)
+                        {
+                            printf("%s", reg_names[(rem << 1) + w]);
+                            printf(", ");
+                        }
                         /* Direct memory, no displacement */
                         switch (rem)
                         {
@@ -90,12 +93,20 @@ void    run(u8 *program, i32 size)
                             case 0b110: printf("[bp + si]"); break;
                             case 0b111: printf("[bx]");      break;
                         }
+                        if (!d)
+                        {
+                            printf(", ");
+                            printf("%s", reg_names[(reg >> 2) + w]);
+                        }
                     }
                     else if (mod == 0b01000000) /* 8bit displacement */
                     {
                         u8 disp = program[pc + 2];
-                        printf("%s", reg_names[(reg >> 2) + w]);
-                        printf(", ");
+                        if (d)
+                        {
+                            printf("%s", reg_names[(reg >> 2) + w]);
+                            printf(", ");
+                        }
                         switch (rem)
                         {
                             case 0b000: printf("[bx + si + %u]", disp); break;
@@ -107,6 +118,11 @@ void    run(u8 *program, i32 size)
                             case 0b110: printf("[bp + %u]", disp); break;
                             case 0b111: printf("[bx + %u]", disp); break;
                         }
+                        if (!d)
+                        {
+                            printf(", ");
+                            printf("%s", reg_names[(reg >> 2) + w]);
+                        }
                         pc += 1;
                     }
                     else if (mod == 0b10000000) /* 16bit displacement */
@@ -116,8 +132,11 @@ void    run(u8 *program, i32 size)
                         /* printb(program[pc]); */
                         /* printb(program[pc + 1]); */
                         /* printb(program[pc + 2]); */
-                        printf("%s", reg_names[(reg >> 2) + w]);
-                        printf(", ");
+                        if (d)
+                        {
+                            printf("%s", reg_names[(rem << 1) + w]);
+                            printf(", ");
+                        }
                         switch (rem)
                         {
                             case 0b000: printf("[bx + si + %d]", disp); break;
@@ -128,6 +147,11 @@ void    run(u8 *program, i32 size)
                             case 0b101: printf("[di + %d]", disp); break;
                             case 0b110: printf("[bp + %d]", disp); break;
                             case 0b111: printf("[bx + %d]", disp); break;
+                        }
+                        if (!d)
+                        {
+                            printf(", ");
+                            printf("%s", reg_names[(reg >> 2) + w]);
                         }
                         pc += 2;
                     }
