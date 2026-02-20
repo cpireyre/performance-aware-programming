@@ -91,16 +91,51 @@ void    run(u8 *program, i32 size)
                             case 0b111: printf("[bx]");      break;
                         }
                     }
-                    else if (mod == 0b01000000)
+                    else if (mod == 0b01000000) /* 8bit displacement */
                     {
-                        if (rem == 0b110) /* 8bit displacement */
+                        u8 disp = program[pc + 2];
+                        printf("%s", reg_names[(reg >> 2) + w]);
+                        printf(", ");
+                        switch (rem)
                         {
-                            printf("%s", reg_names[(reg >> 2) + w]);
-                            printf(", ");
-                            u8 d8 = program[pc + 2];
-                            printf("[bp + %d]", d8);
-                            pc += 1;
+                            case 0b000: printf("[bx + si + %u]", disp); break;
+                            case 0b001: printf("[bx + di + %u]", disp); break;
+                            case 0b010: printf("[bp + si + %u]", disp); break;
+                            case 0b011: printf("[bp + di + %u]", disp); break;
+                            case 0b100: printf("[si + %u]", disp); break;
+                            case 0b101: printf("[di + %u]", disp); break;
+                            case 0b110: printf("[bp + %u]", disp); break;
+                            case 0b111: printf("[bx + %u]", disp); break;
                         }
+                        pc += 1;
+                    }
+                    else if (mod == 0b10000000) /* 16bit displacement */
+                    {
+                        /* I don't understand why pc + 2 is correct */
+                        u16 disp = *(u16*)(program + pc + 2);
+                        /* printb(program[pc]); */
+                        /* printb(program[pc + 1]); */
+                        /* printb(program[pc + 2]); */
+                        printf("%s", reg_names[(reg >> 2) + w]);
+                        printf(", ");
+                        switch (rem)
+                        {
+                            case 0b000: printf("[bx + si + %d]", disp); break;
+                            case 0b001: printf("[bx + di + %d]", disp); break;
+                            case 0b010: printf("[bp + si + %d]", disp); break;
+                            case 0b011: printf("[bp + di + %d]", disp); break;
+                            case 0b100: printf("[si + %d]", disp); break;
+                            case 0b101: printf("[di + %d]", disp); break;
+                            case 0b110: printf("[bp + %d]", disp); break;
+                            case 0b111: printf("[bx + %d]", disp); break;
+                        }
+                        pc += 2;
+                    }
+                    else
+                    {
+                        printb(program[pc]);
+                        printb(program[pc + 1]);
+                        printb(program[pc + 2]);
                     }
                     (void)d;
                     /* printf("%d%d %d.%d.%d\n", d, w, mod, reg, rem); */
