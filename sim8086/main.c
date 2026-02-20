@@ -68,14 +68,16 @@ void    run(u8 *program, i32 size)
                     reg = program[pc + 1] & REG_MASK;
                     rem = program[pc + 1] & REM_MASK;
                     printf("mov ");
-                    printf("%s", reg_names[(rem << 1) + w]);
-                    printf(", ");
                     if (mod == 0b11000000)
                     {
+                        printf("%s", reg_names[(rem << 1) + w]);
+                        printf(", ");
                         printf("%s", reg_names[(reg >> 2) + w]);
                     }
                     else if (mod == 0)
                     {
+                        printf("%s", reg_names[(rem << 1) + w]);
+                        printf(", ");
                         /* Direct memory, no displacement */
                         switch (rem)
                         {
@@ -87,6 +89,17 @@ void    run(u8 *program, i32 size)
                             case 0b101: printf("[di]");      break;
                             case 0b110: printf("[bp + si]"); break;
                             case 0b111: printf("[bx]");      break;
+                        }
+                    }
+                    else if (mod == 0b01000000)
+                    {
+                        if (rem == 0b110) /* 8bit displacement */
+                        {
+                            printf("%s", reg_names[(reg >> 2) + w]);
+                            printf(", ");
+                            u8 d8 = program[pc + 2];
+                            printf("[bp + %d]", d8);
+                            pc += 1;
                         }
                     }
                     (void)d;
