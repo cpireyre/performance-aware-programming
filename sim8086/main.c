@@ -78,7 +78,7 @@ void    run(u8 *program, i32 size)
                     {
                         if (d)
                         {
-                            printf("%s", reg_names[(rem << 1) + w]);
+                            printf("%s", reg_names[(reg >> 2) + w]);
                             printf(", ");
                         }
                         /* Direct memory, no displacement */
@@ -134,7 +134,7 @@ void    run(u8 *program, i32 size)
                         /* printb(program[pc + 2]); */
                         if (d)
                         {
-                            printf("%s", reg_names[(rem << 1) + w]);
+                            printf("%s", reg_names[(reg >> 2) + w]);
                             printf(", ");
                         }
                         switch (rem)
