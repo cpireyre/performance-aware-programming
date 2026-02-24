@@ -175,12 +175,13 @@ void    run(u8 *program, i32 size)
                     printf("mov ");
                     printf("%s", reg_names[(reg << 1) + w]);
                     printf(", ");
-                    if (w)
+                    if (!w)
+                        printf("%d", program[pc + 1]);
+                    else
                     {
                         printf("%d", *(u16*)(program + pc + 1));
                         pc += 1;
                     }
-                    else printf("%d", program[pc + 1]);
                     break;
                 }
           default:
