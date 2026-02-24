@@ -21,7 +21,14 @@ Tue Feb 17 11:13:01 EET 2026
     - Depending on the MOD the CPU may have to read 0, 1,
     or 2 extra bytes..... what were they thinking‽
 
-Opcode Patterns in 8086 Arithmetic (20:01)
+Tue Feb 24 10:19:44 EET 2026
+~ Opcode Patterns in 8086 Arithmetic 
+    - Arithmetic instructions such as `add`, in 8086, have
+    an opcode pattern that lets them read from registers
+    OR memory directly, obviating need for `mov`.
+    - It also avoids having to clobber a register.
+    - Today's homework: add, sub, cmp, jnz.
+
 8086 Decoder Code Review (1:17:49)
 Using the Reference Decoder as a Shared Library (8:48)
 Simulating Non-memory MOVs (18:00)

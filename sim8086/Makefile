@@ -17,4 +17,5 @@ t: all
 	./diff.sh test/disp16
 	./diff.sh test/dest-calc
 	./diff.sh test/listing_0039_more_movs
+	# ./diff.sh test/test-add
 	@echo "All clear!"
