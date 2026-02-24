@@ -39,7 +39,7 @@ void    run(u8 *program, i32 size)
 {
     i32  pc;
     u8   d, w, mod, reg, rem, opcode;
-    char *reg_names[] = {
+    static char *reg_names[] = {
         "al", "ax",
         "cl", "cx",
         "dl", "dx",
@@ -49,7 +49,7 @@ void    run(u8 *program, i32 size)
         "dh", "si",
         "bh", "di"
     };
-    char *rem_names[] = {
+    static char *rem_names[] = {
         "[bx + si]",
         "[bx + di]",
         "[bp + si]",
@@ -59,6 +59,27 @@ void    run(u8 *program, i32 size)
         "[bp + si]",
         "[bx]"
     };
+    static char *reg_names_disp8[] = {
+        "[bx + si + %u]",
+        "[bx + di + %u]",
+        "[bp + si + %u]",
+        "[bp + di + %u]",
+        "[si + %u]",
+        "[di + %u]",
+        "[bp + %u]",
+        "[bx + %u]"
+    };
+    static char *reg_names_disp16[] = {
+        "[bx + si + %d]",
+        "[bx + di + %d]",
+        "[bp + si + %d]",
+        "[bp + di + %d]",
+        "[si + %d]",
+        "[di + %d]",
+        "[bp + %d]",
+        "[bx + %d]"
+    };
+
     Op  op;
 
     /* d = 0: src in reg field. 1: dest in reg */
@@ -86,15 +107,15 @@ void    run(u8 *program, i32 size)
                     printf("mov ");
                     if (mod == 0b11)
                     {
-                        printf("%s", reg_names[(rem << 1) + w]);
+                        printf(reg_names[(rem << 1) + w]);
                         printf(", ");
-                        printf("%s", reg_names[(reg >> 2) + w]);
+                        printf(reg_names[(reg >> 2) + w]);
                     }
                     else if (mod == 0b00)
                     {
                         if (d)
                         {
-                            printf("%s", reg_names[(reg >> 2) + w]);
+                            printf(reg_names[(reg >> 2) + w]);
                             printf(", ");
                         }
                         /* Direct memory, no displacement */
@@ -102,7 +123,7 @@ void    run(u8 *program, i32 size)
                         if (!d)
                         {
                             printf(", ");
-                            printf("%s", reg_names[(reg >> 2) + w]);
+                            printf(reg_names[(reg >> 2) + w]);
                         }
                     }
                     else if (mod == 0b01) /* 8bit displacement */
@@ -110,24 +131,14 @@ void    run(u8 *program, i32 size)
                         u8 disp = program[pc + 2];
                         if (d)
                         {
-                            printf("%s", reg_names[(reg >> 2) + w]);
+                            printf(reg_names[(reg >> 2) + w]);
                             printf(", ");
                         }
-                        switch (rem)
-                        {
-                            case 0b000: printf("[bx + si + %u]", disp); break;
-                            case 0b001: printf("[bx + di + %u]", disp); break;
-                            case 0b010: printf("[bp + si + %u]", disp); break;
-                            case 0b011: printf("[bp + di + %u]", disp); break;
-                            case 0b100: printf("[si + %u]", disp); break;
-                            case 0b101: printf("[di + %u]", disp); break;
-                            case 0b110: printf("[bp + %u]", disp); break;
-                            case 0b111: printf("[bx + %u]", disp); break;
-                        }
+                        printf(reg_names_disp8[rem], disp);
                         if (!d)
                         {
                             printf(", ");
-                            printf("%s", reg_names[(reg >> 2) + w]);
+                            printf(reg_names[(reg >> 2) + w]);
                         }
                         pc += 1;
                     }
@@ -140,20 +151,10 @@ void    run(u8 *program, i32 size)
                         /* printb(program[pc + 2]); */
                         if (d)
                         {
-                            printf("%s", reg_names[(reg >> 2) + w]);
+                            printf(reg_names[(reg >> 2) + w]);
                             printf(", ");
                         }
-                        switch (rem)
-                        {
-                            case 0b000: printf("[bx + si + %d]", disp); break;
-                            case 0b001: printf("[bx + di + %d]", disp); break;
-                            case 0b010: printf("[bp + si + %d]", disp); break;
-                            case 0b011: printf("[bp + di + %d]", disp); break;
-                            case 0b100: printf("[si + %d]", disp); break;
-                            case 0b101: printf("[di + %d]", disp); break;
-                            case 0b110: printf("[bp + %d]", disp); break;
-                            case 0b111: printf("[bx + %d]", disp); break;
-                        }
+                        printf(reg_names_disp16[rem], disp);
                         if (!d)
                         {
                             printf(", ");
