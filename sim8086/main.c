@@ -49,6 +49,16 @@ void    run(u8 *program, i32 size)
         "dh", "si",
         "bh", "di"
     };
+    char *rem_names[] = {
+        "[bx + si]",
+        "[bx + di]",
+        "[bp + si]",
+        "[bp + di]",
+        "[si]",
+        "[di]",
+        "[bp + si]",
+        "[bx]"
+    };
     Op  op;
 
     /* d = 0: src in reg field. 1: dest in reg */
@@ -61,23 +71,26 @@ void    run(u8 *program, i32 size)
     {
         opcode = program[pc];
         op = decode(program[pc]);
+        d = opcode & (1 << 1);
+        w = opcode & (1 << 0);
+        mod = (program[pc + 1] & MOD_MASK) >> 6;
+        /* printb(mod); */
+        /* printb(mod >> 6); */
+        /* write(1, "---\n", 4); */
+        reg = program[pc + 1] & REG_MASK;
+        rem = program[pc + 1] & REM_MASK;
         switch (op)
         {
             case reg2reg:
                 {
-                    d = opcode & (1 << 1);
-                    w = opcode & (1 << 0);
-                    mod = program[pc + 1] & MOD_MASK;
-                    reg = program[pc + 1] & REG_MASK;
-                    rem = program[pc + 1] & REM_MASK;
                     printf("mov ");
-                    if (mod == 0b11000000)
+                    if (mod == 0b11)
                     {
                         printf("%s", reg_names[(rem << 1) + w]);
                         printf(", ");
                         printf("%s", reg_names[(reg >> 2) + w]);
                     }
-                    else if (mod == 0)
+                    else if (mod == 0b00)
                     {
                         if (d)
                         {
@@ -85,24 +98,14 @@ void    run(u8 *program, i32 size)
                             printf(", ");
                         }
                         /* Direct memory, no displacement */
-                        switch (rem)
-                        {
-                            case 0b000: printf("[bx + si]"); break;
-                            case 0b001: printf("[bx + di]"); break;
-                            case 0b010: printf("[bp + si]"); break;
-                            case 0b011: printf("[bp + di]"); break;
-                            case 0b100: printf("[si]");      break;
-                            case 0b101: printf("[di]");      break;
-                            case 0b110: printf("[bp + si]"); break;
-                            case 0b111: printf("[bx]");      break;
-                        }
+                        printf("%s", rem_names[rem]);
                         if (!d)
                         {
                             printf(", ");
                             printf("%s", reg_names[(reg >> 2) + w]);
                         }
                     }
-                    else if (mod == 0b01000000) /* 8bit displacement */
+                    else if (mod == 0b01) /* 8bit displacement */
                     {
                         u8 disp = program[pc + 2];
                         if (d)
@@ -128,7 +131,7 @@ void    run(u8 *program, i32 size)
                         }
                         pc += 1;
                     }
-                    else if (mod == 0b10000000) /* 16bit displacement */
+                    else if (mod == 0b10) /* 16bit displacement */
                     {
                         /* I don't understand why pc + 2 is correct */
                         u16 disp = *(u16*)(program + pc + 2);
@@ -168,7 +171,7 @@ void    run(u8 *program, i32 size)
                     /* printf("%d%d %d.%d.%d\n", d, w, mod, reg, rem); */
                     break;
                 }
-           case imm2reg:
+            case imm2reg:
                 {
                     reg = opcode & 0b111;
                     w = !(!(opcode & (1 << 3)));
@@ -182,7 +185,7 @@ void    run(u8 *program, i32 size)
                     pc += !!w;
                     break;
                 }
-          default:
+            default:
                 {
                     printf("Unrecognised opcode");
                     printb(opcode);
