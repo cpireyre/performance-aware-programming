@@ -1,6 +1,6 @@
 .PHONY: all
 all: main.c
-	$(CC) -Wall -Wextra -Wshadow -Werror main.c -o sim8086
+	$(CC) -Wall -Wextra -Wshadow -Wno-format-security -Werror main.c -o sim8086
 
 .PHONY: clean
 clean:
