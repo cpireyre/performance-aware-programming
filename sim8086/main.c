@@ -10,9 +10,11 @@
 #include <string.h>
 #include <unistd.h>
 
-typedef int i32;
 typedef unsigned char   u8;
 typedef unsigned short  u16;
+typedef int             i32;
+
+#include "io.c"
 
 typedef enum
 {
@@ -31,12 +33,7 @@ Op decode(u8 opcode)
     return unknown;
 }
 
-#include "io.c"
-
 #define MAX_FILE_SIZE_BYTES 4096
-#define MOD_MASK        0b11000000
-#define REG_MASK        0b00111000
-#define REM_MASK        0b00000111
 
 void           run(u8 *program, i32 size);
 
@@ -102,8 +99,6 @@ void    run(u8 *program, i32 size)
         "[bx + %d]"
     };
 
-    Op  op;
-
     /* d = 0: src in reg field. 1: dest in reg */
     /* d is always 0 in the first 2 listings */
     /* dest first in Intel assembly */
@@ -113,24 +108,24 @@ void    run(u8 *program, i32 size)
     while (pc < size)
     {
         opcode = program[pc];
-        op = decode(program[pc]);
-        d = opcode & (1 << 1);
-        w = opcode & (1 << 0);
-        mod = (program[pc + 1] & MOD_MASK) >> 6;
-        reg = (program[pc + 1] & REG_MASK) >> 2;
-        rem = program[pc + 1] & REM_MASK;
-        switch (op)
+        d = opcode & 0b10;
+        w = opcode & 0b01;
+        mod = (program[pc + 1] & 0b11000000) >> 6;
+        reg = (program[pc + 1] & 0b00111000) >> 2;
+        rem =  program[pc + 1] & 0b00000111;
+        char *arg1 = reg_names[reg | w];
+        switch (decode(program[pc]))
         {
             case reg2reg:
                 {
                     printf("mov ");
                     if (mod == 0b11)
                         printf("%s, %s",
-                                reg_names[(rem << 1) + w],
-                                reg_names[reg + w]);
+                                reg_names[(rem << 1) | w],
+                                arg1);
                     else
                     {
-                        if (d) printf("%s, ", reg_names[reg + w]);
+                        if (d) printf("%s, ", arg1);
                         switch (mod)
                         {
                             case 0b00:
@@ -147,7 +142,7 @@ void    run(u8 *program, i32 size)
                                 pc += 2;
                                 break;
                         }
-                        if (!d) printf(", %s", reg_names[reg + w]);
+                        if (!d) printf(", %s", arg1);
                     }
                     break;
                 }
@@ -156,7 +151,7 @@ void    run(u8 *program, i32 size)
                     reg = opcode & 0b111;
                     w = !(!(opcode & (1 << 3)));
                     printf("mov ");
-                    printf(reg_names[(reg << 1) + w]);
+                    printf(reg_names[(reg << 1) | w]);
                     if (!w)
                         printf(", %d", program[pc + 1]);
                     else
@@ -166,7 +161,7 @@ void    run(u8 *program, i32 size)
                 }
             default:
                 {
-                    printf("Unrecognised opcode");
+                    printf("unrecognised opcode");
                     printb(opcode);
                     break;
                 }
