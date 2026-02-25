@@ -53,20 +53,15 @@ int main(int argc, char **argv)
 
 void    run(u8 *program, i32 size)
 {
-    i32  pc;
-    u8   d, w, mod, reg, rem, opcode;
-    u8   disp8;
-    u16  disp16;
+    i32     pc;
+    u8      d, w, mod, reg, rem, opcode;
+    u8      disp8;
+    u16     disp16;
+    char    *arg1;
 
     static char *reg_names[] = {
-        "al", "ax",
-        "cl", "cx",
-        "dl", "dx",
-        "bl", "bx",
-        "ah", "sp",
-        "ch", "bp",
-        "dh", "si",
-        "bh", "di"
+        "al", "ax", "cl", "cx", "dl", "dx", "bl", "bx",
+        "ah", "sp", "ch", "bp", "dh", "si", "bh", "di"
     };
     static char *rem_names[] = {
         "[bx + si]",
@@ -75,28 +70,20 @@ void    run(u8 *program, i32 size)
         "[bp + di]",
         "[si]",
         "[di]",
-        "[bp + si]",
+        "[bp + si]", /* Should be "DIRECT ADDRESS"? */
         "[bx]"
     };
     static char *reg_names_disp8[] = {
-        "[bx + si + %u]",
-        "[bx + di + %u]",
-        "[bp + si + %u]",
-        "[bp + di + %u]",
-        "[si + %u]",
-        "[di + %u]",
-        "[bp + %u]",
-        "[bx + %u]"
+        "[bx + si + %u]", "[bx + di + %u]",
+        "[bp + si + %u]", "[bp + di + %u]",
+        "[si + %u]", "[di + %u]",
+        "[bp + %u]", "[bx + %u]"
     };
     static char *reg_names_disp16[] = {
-        "[bx + si + %d]",
-        "[bx + di + %d]",
-        "[bp + si + %d]",
-        "[bp + di + %d]",
-        "[si + %d]",
-        "[di + %d]",
-        "[bp + %d]",
-        "[bx + %d]"
+        "[bx + si + %d]", "[bx + di + %d]",
+        "[bp + si + %d]", "[bp + di + %d]",
+        "[si + %d]", "[di + %d]",
+        "[bp + %d]", "[bx + %d]"
     };
 
     /* d = 0: src in reg field. 1: dest in reg */
@@ -113,7 +100,8 @@ void    run(u8 *program, i32 size)
         mod = (program[pc + 1] & 0b11000000) >> 6;
         reg = (program[pc + 1] & 0b00111000) >> 2;
         rem =  program[pc + 1] & 0b00000111;
-        char *arg1 = reg_names[reg | w];
+        arg1 = reg_names[reg | w];
+
         switch (decode(program[pc]))
         {
             case reg2reg:
