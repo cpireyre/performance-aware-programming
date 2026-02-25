@@ -9,7 +9,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "mov.c"
+
+typedef int i32;
+typedef unsigned char   u8;
+typedef unsigned short  u16;
+
+typedef enum
+{
+    reg2reg,
+    imm2reg,
+    unknown
+} Op;
+
+u8 match(u8 op, u8 mask) { return (op & mask) == mask; }
+
+Op decode(u8 opcode)
+{
+    /* This is order-complected somehow oh geez */
+    if (match(opcode, 0b10110000)) return imm2reg;
+    if (match(opcode, 0b10001000)) return reg2reg;
+    return unknown;
+}
+
 #include "io.c"
 
 #define MAX_FILE_SIZE_BYTES 4096
