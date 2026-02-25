@@ -1,6 +1,8 @@
+CFLAGS := -Wall -Wextra -Werror -Wshadow -Wno-format-security
+
 .PHONY: all
 all: main.c
-	$(CC) -Wall -Wextra -Wshadow -Wno-format-security -Werror main.c -o sim8086
+	$(CC) $(CFLAGS) main.c -o sim8086
 
 .PHONY: clean
 clean:
