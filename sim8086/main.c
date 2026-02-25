@@ -39,6 +39,9 @@ void    run(u8 *program, i32 size)
 {
     i32  pc;
     u8   d, w, mod, reg, rem, opcode;
+    u8   disp8;
+    u16  disp16;
+
     static char *reg_names[] = {
         "al", "ax",
         "cl", "cx",
@@ -95,10 +98,7 @@ void    run(u8 *program, i32 size)
         d = opcode & (1 << 1);
         w = opcode & (1 << 0);
         mod = (program[pc + 1] & MOD_MASK) >> 6;
-        /* printb(mod); */
-        /* printb(mod >> 6); */
-        /* write(1, "---\n", 4); */
-        reg = program[pc + 1] & REG_MASK;
+        reg = (program[pc + 1] & REG_MASK) >> 2;
         rem = program[pc + 1] & REM_MASK;
         switch (op)
         {
@@ -106,70 +106,30 @@ void    run(u8 *program, i32 size)
                 {
                     printf("mov ");
                     if (mod == 0b11)
-                    {
-                        printf(reg_names[(rem << 1) + w]);
-                        printf(", ");
-                        printf(reg_names[(reg >> 2) + w]);
-                    }
-                    else if (mod == 0b00)
-                    {
-                        if (d)
-                        {
-                            printf(reg_names[(reg >> 2) + w]);
-                            printf(", ");
-                        }
-                        /* Direct memory, no displacement */
-                        printf("%s", rem_names[rem]);
-                        if (!d)
-                        {
-                            printf(", ");
-                            printf(reg_names[(reg >> 2) + w]);
-                        }
-                    }
-                    else if (mod == 0b01) /* 8bit displacement */
-                    {
-                        u8 disp = program[pc + 2];
-                        if (d)
-                        {
-                            printf(reg_names[(reg >> 2) + w]);
-                            printf(", ");
-                        }
-                        printf(reg_names_disp8[rem], disp);
-                        if (!d)
-                        {
-                            printf(", ");
-                            printf(reg_names[(reg >> 2) + w]);
-                        }
-                        pc += 1;
-                    }
-                    else if (mod == 0b10) /* 16bit displacement */
-                    {
-                        /* I don't understand why pc + 2 is correct */
-                        u16 disp = *(u16*)(program + pc + 2);
-                        /* printb(program[pc]); */
-                        /* printb(program[pc + 1]); */
-                        /* printb(program[pc + 2]); */
-                        if (d)
-                        {
-                            printf(reg_names[(reg >> 2) + w]);
-                            printf(", ");
-                        }
-                        printf(reg_names_disp16[rem], disp);
-                        if (!d)
-                        {
-                            printf(", ");
-                            printf("%s", reg_names[(reg >> 2) + w]);
-                        }
-                        pc += 2;
-                    }
+                        printf("%s, %s",
+                                reg_names[(rem << 1) + w],
+                                reg_names[reg + w]);
                     else
                     {
-                        printb(program[pc]);
-                        printb(program[pc + 1]);
-                        printb(program[pc + 2]);
+                        if (d) printf("%s, ", reg_names[reg + w]);
+                        switch (mod)
+                        {
+                            case 0b00:
+                                printf(rem_names[rem]);
+                                break;
+                            case 0b01:
+                                disp8 = program[pc + 2];
+                                printf(reg_names_disp8[rem], disp8);
+                                pc += 1;
+                                break;
+                            case 0b10:
+                                disp16 = *(u16*)(program + pc + 2);
+                                printf(reg_names_disp16[rem], disp16);
+                                pc += 2;
+                                break;
+                        }
+                        if (!d) printf(", %s", reg_names[reg + w]);
                     }
-                    (void)d;
-                    /* printf("%d%d %d.%d.%d\n", d, w, mod, reg, rem); */
                     break;
                 }
             case imm2reg:
@@ -177,12 +137,11 @@ void    run(u8 *program, i32 size)
                     reg = opcode & 0b111;
                     w = !(!(opcode & (1 << 3)));
                     printf("mov ");
-                    printf("%s", reg_names[(reg << 1) + w]);
-                    printf(", ");
+                    printf(reg_names[(reg << 1) + w]);
                     if (!w)
-                        printf("%d", program[pc + 1]);
+                        printf(", %d", program[pc + 1]);
                     else
-                        printf("%d", *(u16*)(program + pc + 1));
+                        printf(", %d", *(u16*)(program + pc + 1));
                     pc += !!w;
                     break;
                 }
