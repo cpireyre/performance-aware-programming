@@ -28,6 +28,9 @@ Tue Feb 24 10:19:44 EET 2026
     OR memory directly, obviating need for `mov`.
     - It also avoids having to clobber a register.
     - Today's homework: add, sub, cmp, jnz.
+    Thu Feb 26 10:01:17 EET 2026:
+    - https://www.reddit.com/r/EmuDev/comments/1bn8csv/8086_decoderemulator_instruction_with_w_wide_flag/
+    - https://archive.org/details/The_8086_Book_Russell_Rector_George_Alexy/page/n555/mode/2up
 
 8086 Decoder Code Review (1:17:49)
 Using the Reference Decoder as a Shared Library (8:48)
