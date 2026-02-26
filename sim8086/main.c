@@ -17,9 +17,11 @@ typedef int             i32;
 #include "io.c"
 
 typedef enum
-{
-    reg2reg,
-    imm2reg,
+{ /* Assign masks in here to allow array indexing? */
+    mov_reg2reg,
+    mov_imm2reg,
+    add_reg2reg,
+    add_imm2reg,
     unknown
 } Op;
 
@@ -28,8 +30,11 @@ u8 match(u8 op, u8 mask) { return (op & mask) == mask; }
 Op decode(u8 opcode)
 {
     /* This is order-complected somehow oh geez */
-    if (match(opcode, 0b10110000)) return imm2reg;
-    if (match(opcode, 0b10001000)) return reg2reg;
+    if (match(opcode, 0b10110000)) return mov_imm2reg;
+    if (match(opcode, 0b10001000)) return mov_reg2reg;
+    if ((opcode & 0b11111100) == 0)return add_reg2reg;
+    if (match(opcode, 0b10000000)) return add_imm2reg;
+
     return unknown;
 }
 
@@ -47,6 +52,7 @@ int main(int argc, char **argv)
     read_bytes = Read(fd, (u8*)&buf, MAX_FILE_SIZE_BYTES);
     /* Assumes we fully read file */
     close(fd);
+    printf("; %s\n\nbits 16\n\n", argv[1]);
     run(buf, read_bytes);
     return (0);
 }
@@ -104,7 +110,7 @@ void    run(u8 *program, i32 size)
 
         switch (decode(program[pc]))
         {
-            case reg2reg:
+            case mov_reg2reg:
                 {
                     printf("mov ");
                     if (mod == 0b11)
@@ -134,7 +140,7 @@ void    run(u8 *program, i32 size)
                     }
                     break;
                 }
-            case imm2reg:
+            case mov_imm2reg:
                 {
                     reg = opcode & 0b111;
                     w = !(!(opcode & (1 << 3)));
@@ -147,6 +153,47 @@ void    run(u8 *program, i32 size)
                     pc += !!w;
                     break;
                 }
+            case add_reg2reg:
+                printf("add ");
+                if (mod == 0b11)
+                    printf("%s, %s",
+                            reg_names[(rem << 1) | w],
+                            arg1);
+                else
+                {
+                    if (d) printf("%s, ", arg1);
+                    switch (mod)
+                    {
+                        case 0b00:
+                            printf(rem_names[rem]);
+                            break;
+                        case 0b01:
+                            disp8 = program[pc + 2];
+                            printf(reg_names_disp8[rem], disp8);
+                            pc += 1;
+                            break;
+                        case 0b10:
+                            disp16 = *(u16*)(program + pc + 2);
+                            printf(reg_names_disp16[rem], disp16);
+                            pc += 2;
+                            break;
+                    }
+                    if (!d) printf(", %s", arg1);
+                }
+                break;
+
+            case add_imm2reg:
+                reg = (program[pc + 1]) & 0b111;
+                w = opcode & 1;
+                printf("add ");
+                printf(reg_names[(reg << 1) | w]);
+                /* printb(opcode); */
+                if (!w)
+                    printf(", %d 8bit", program[pc + 4]);
+                else
+                    printf(", %d 16bit", *(u16*)(program + pc + 4));
+                pc += 4 + (w | d);
+                break;
             default:
                 {
                     printf("unrecognised opcode");
