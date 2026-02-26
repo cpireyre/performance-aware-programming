@@ -187,12 +187,18 @@ void    run(u8 *program, i32 size)
                 w = opcode & 1;
                 printf("add ");
                 printf(reg_names[(reg << 1) | w]);
-                /* printb(opcode); */
-                if (!w)
-                    printf(", %d 8bit", program[pc + 4]);
-                else
+                printb(program[pc]);
+                printb(program[pc + 1]);
+                printb(program[pc + 2]);
+                printb(program[pc + 3]);
+                printb(program[pc + 4]);
+                printb(program[pc + 5]);
+                u8 _16bit = (d == 0 && w == 1) ? 1 : 0;
+                if (_16bit)
                     printf(", %d 16bit", *(u16*)(program + pc + 4));
-                pc += 4 + (w | d);
+                else
+                    printf(", %d 8bit", program[pc + 4]);
+                pc += 1 + _16bit;
                 break;
             default:
                 {
