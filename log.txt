@@ -32,6 +32,14 @@ Tue Feb 24 10:19:44 EET 2026
     - https://www.reddit.com/r/EmuDev/comments/1bn8csv/8086_decoderemulator_instruction_with_w_wide_flag/
     - https://archive.org/details/The_8086_Book_Russell_Rector_George_Alexy/page/n555/mode/2up
 
+Sat Feb 28 10:01:44 EET 2026
+    - `byte` or `word` in the asm is like casting to (u8*)
+    vs (u16*). You need to know what size to operate on
+    at that address, if the destination is just memory.
+    So you have to read `mod` to figure out if that's
+    necessary or not.
+    - `bx` means the register itself. `[bx]` is dereferencing
+    
 8086 Decoder Code Review (1:17:49)
 Using the Reference Decoder as a Shared Library (8:48)
 Simulating Non-memory MOVs (18:00)

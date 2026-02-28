@@ -1,8 +1,3 @@
-/* TODO: Use bit field for decoding as in https://pastebin.com/hQ6PKSB3
- * Although some endianness and future-proofing concerns,
- * if some later opcodes break the rules.
-*/
-
 #include <assert.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -183,22 +178,45 @@ void    run(u8 *program, i32 size)
                 break;
 
             case add_imm2reg:
-                reg = (program[pc + 1]) & 0b111;
-                w = opcode & 1;
                 printf("add ");
-                printf(reg_names[(reg << 1) | w]);
-                /* printb(program[pc]); */
-                /* printb(program[pc + 1]); */
-                /* printb(program[pc + 2]); */
-                /* printb(program[pc + 3]); */
-                /* printb(program[pc + 4]); */
-                /* printb(program[pc + 5]); */
-                u8 _16bit = (d == 0 && w == 1) ? 1 : 0;
-                if (_16bit)
-                    printf(", %d", *(u16*)(program + pc + 2));
-                else
-                    printf(", %d", program[pc + 2]);
-                pc += 1 + _16bit;
+                if (mod == 0b11) /* Register mode */
+                {
+                    reg = (program[pc + 1]) & 0b111;
+                    w = opcode & 1;
+                    printf(reg_names[(reg << 1) | w]);
+                    u8 _16bit = (d == 0 && w == 1) ? 1 : 0;
+                    if (_16bit)
+                        printf(", %d", *(u16*)(program + pc + 2));
+                    else
+                        printf(", %d", program[pc + 2]);
+                    pc += 1 + _16bit;
+                }
+                else /* Memory modes, maybe displacement */
+                {
+                    printf("%s ", w ? "word" : "byte");
+                    switch (mod)
+                    {
+                        case 0b00:
+                            printf(rem_names[rem]);
+                            break;
+                        case 0b01:
+                            disp8 = program[pc + 2];
+                            printf(reg_names_disp8[rem], disp8);
+                            pc += 1;
+                            break;
+                        case 0b10:
+                            disp16 = *(u16*)(program + pc + 2);
+                            printf(reg_names_disp16[rem], disp16);
+                            pc += 2;
+                            break;
+                    }
+                    u8 _16bit = (d == 0 && w == 1) ? 1 : 0;
+                    if (_16bit)
+                        printf(", %d", *(u16*)(program + pc + 2));
+                    else
+                        printf(", %d", program[pc + 2]);
+                    pc += 1 + _16bit;
+                }
                 break;
             default:
                 {
