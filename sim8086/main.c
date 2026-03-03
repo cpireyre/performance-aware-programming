@@ -16,8 +16,10 @@ typedef enum
     mov_reg2reg,
     mov_imm2reg,
     add_reg2reg,
-    add_imm2reg,
+    imm2reg,
+    sub_imm2acc,
     add_imm2acc,
+    sub_reg2reg,
     unknown
 } Op;
 
@@ -26,11 +28,13 @@ u8 match(u8 op, u8 mask) { return (op & mask) == mask; }
 Op decode(u8 opcode)
 {
     /* This is order-complected somehow oh geez */
-    if (match(opcode, 0b10110000)) return mov_imm2reg;
-    if (match(opcode, 0b10001000)) return mov_reg2reg;
-    if ((opcode & 0b11111100) == 0)return add_reg2reg;
-    if (match(opcode, 0b10000000)) return add_imm2reg;
-    if (match(opcode, 0b00000100)) return add_imm2acc;
+    if (match(opcode, 0b10110000))     return mov_imm2reg;
+    if (match(opcode, 0b10001000))     return mov_reg2reg;
+    if ((opcode     & 0b11111100) == 0)return add_reg2reg;
+    if (match(opcode, 0b10000000))     return imm2reg;
+    if (match(opcode, 0b00101100))     return sub_imm2acc;
+    if (match(opcode, 0b00000100))     return add_imm2acc;
+    if (match(opcode, 0b00101000))     return sub_reg2reg;
 
     return unknown;
 }
@@ -179,8 +183,10 @@ void    run(u8 *program, i32 size)
                 }
                 break;
 
-            case add_imm2reg:
-                printf("add ");
+            case imm2reg:
+                if (reg == 0b0000) printf("add ");
+                if (reg == 0b1010) printf("sub ");
+                if (reg == 0b1110) printf("cmp ");
                 if (mod == 0b11) /* Register mode */
                 {
                     reg = (program[pc + 1]) & 0b111;
@@ -220,6 +226,16 @@ void    run(u8 *program, i32 size)
                     pc += 1 + _16bit;
                 }
                 break;
+            case sub_imm2acc:
+                {
+                    printf("sub %s, ", w == 1 ? "ax" : "al");
+                    if (w == 1)
+                        printf("%d", *(u16*)(program + pc + 1));
+                    else
+                        printf("%d", program[pc + 1]);
+                    pc += w;
+                }
+                break;
             case add_imm2acc:
                 {
                     printf("add %s, ", w == 1 ? "ax" : "al");
@@ -228,6 +244,36 @@ void    run(u8 *program, i32 size)
                     else
                         printf("%d", program[pc + 1]);
                     pc += w;
+                }
+                break;
+            case sub_reg2reg:
+                {
+                    printf("sub ");
+                    if (mod == 0b11)
+                        printf("%s, %s",
+                                reg_names[(rem << 1) | w],
+                                arg1);
+                    else
+                    {
+                        if (d) printf("%s, ", arg1);
+                        switch (mod)
+                        {
+                            case 0b00:
+                                printf(rem_names[rem]);
+                                break;
+                            case 0b01:
+                                disp8 = program[pc + 2];
+                                printf(reg_names_disp8[rem], disp8);
+                                pc += 1;
+                                break;
+                            case 0b10:
+                                disp16 = *(u16*)(program + pc + 2);
+                                printf(reg_names_disp16[rem], disp16);
+                                pc += 2;
+                                break;
+                        }
+                        if (!d) printf(", %s", arg1);
+                    }
                 }
                 break;
             default:
