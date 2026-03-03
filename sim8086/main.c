@@ -17,6 +17,7 @@ typedef enum
     mov_imm2reg,
     add_reg2reg,
     add_imm2reg,
+    add_imm2acc,
     unknown
 } Op;
 
@@ -29,6 +30,7 @@ Op decode(u8 opcode)
     if (match(opcode, 0b10001000)) return mov_reg2reg;
     if ((opcode & 0b11111100) == 0)return add_reg2reg;
     if (match(opcode, 0b10000000)) return add_imm2reg;
+    if (match(opcode, 0b00000100)) return add_imm2acc;
 
     return unknown;
 }
@@ -216,6 +218,16 @@ void    run(u8 *program, i32 size)
                     else
                         printf(", %d", program[pc + 2]);
                     pc += 1 + _16bit;
+                }
+                break;
+            case add_imm2acc:
+                {
+                    printf("add %s, ", w == 1 ? "ax" : "al");
+                    if (w == 1)
+                        printf("%d", *(u16*)(program + pc + 1));
+                    else
+                        printf("%d", program[pc + 1]);
+                    pc += w;
                 }
                 break;
             default:
