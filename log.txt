@@ -43,6 +43,9 @@ Sat Feb 28 10:01:44 EET 2026
 Tue Mar  3 10:48:43 EET 2026
     - `accumulator` is a special compact notation for al/ax
     
+Thu Mar  5 08:50:12 EET 2026
+    - Pausing this project for now to focus on other things
+
 8086 Decoder Code Review (1:17:49)
 Using the Reference Decoder as a Shared Library (8:48)
 Simulating Non-memory MOVs (18:00)
